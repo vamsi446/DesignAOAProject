@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Random;
 
 
 public class Project {
@@ -98,21 +99,16 @@ public class Project {
 		
 		
 		System.out.println("--------------Quick Sort--------------------");
-		QuickSort Q1 = new QuickSort();
-		Q1.sort(s1rearranged, 0, s1rearranged.length-1);
-		System.out.println(Q1.getInversions());
-		QuickSort Q2 = new QuickSort();
-		Q2.sort(s2rearranged, 0, s2rearranged.length-1);
-		System.out.println(Q2.getInversions());
-		QuickSort Q3 = new QuickSort();
-		Q3.sort(s3rearranged, 0, s3rearranged.length-1);
-		System.out.println(Q3.getInversions());
-		QuickSort Q4 = new QuickSort();
-		Q4.sort(s4rearranged, 0, s4rearranged.length-1);
-		System.out.println(Q4.getInversions());
-		QuickSort Q5 = new QuickSort();
-		Q5.sort(s5rearranged, 0, s5rearranged.length-1);
-		System.out.println(Q5.getInversions());
+		QuickSort Q1 = new QuickSort(s1rearranged);
+		Q1.displayInversions();
+		QuickSort Q2 = new QuickSort(s2rearranged);
+		Q2.displayInversions();
+		QuickSort Q3 = new QuickSort(s3rearranged);
+		Q3.displayInversions();
+		QuickSort Q4 = new QuickSort(s4rearranged);
+		Q4.displayInversions();
+		QuickSort Q5 = new QuickSort(s5rearranged);
+		Q5.displayInversions();
 		
 		Rank.sort(Q1.getInversions(), Q2.getInversions(), Q3.getInversions(), Q4.getInversions(), Q5.getInversions());
 		
@@ -215,39 +211,163 @@ class MergeSort {
 
 
  class QuickSort {
-    private int countInversions = 0;
-    
-    public int getInversions() {
-    	return countInversions;
-    }
-    
-    public void sort(int[] arr, int low, int high) {
-        if (low < high) {
-            int pivotIndex = partition(arr, low, high);
-            sort(arr, low, pivotIndex - 1);
-            sort(arr, pivotIndex + 1, high);
-        }
-    }
-
-    private int partition(int[] arr, int low, int high) {
-        int pivot = arr[high];
-        int i = low - 1;
-        for (int j = low; j < high; j++) {
-            if (arr[j] <= pivot) {
-                i++;
-                swap(arr, i, j);
-                countInversions += j - i;
-            }
-        }
-        swap(arr, i + 1, high);
-        return i + 1;
-    }
-
-    private static void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
+	private int[] unsorted;
+	private int[] sorted;
+	private int inversions;
+	
+	//constructor
+	QuickSort(int[] unsorted_) {
+		//set unsorted value
+		this.unsorted = unsorted_;
+		//set inversions to 0
+		this.inversions = 0;
+		
+		//convert unsorted into an ArrayList of type Integer
+		ArrayList<Integer> temp = new ArrayList<Integer>();
+		for (int i=0; i<this.unsorted.length; i++) {
+			temp.add(this.unsorted[i]);
+		}
+		
+		//sort temp(holds the values of unsorted)
+		temp = sort(temp);
+		
+		//transfer sorted values into sorted
+		this.sorted = new int[temp.size()];
+		for (int i=0; i<temp.size(); i++) {
+			this.sorted[i] = temp.get(i);
+		}
+	}
+	
+	//setters
+	public void setUnsorted(int[] unsorted_) {
+		this.unsorted = unsorted_;
+	}
+	
+	//getters
+	public int[] getUnsorted() {
+		return unsorted;
+	}
+	
+	public int[] getSorted() {
+		return sorted;
+	}
+	
+	public int getInversions() {
+		return inversions;
+	}
+	
+	//other methods
+	public ArrayList<Integer> sort(ArrayList<Integer> array) {
+		if (array.size() <= 1) {
+			return array;
+		} else {
+			ArrayList<Integer> less_than = new ArrayList<Integer>();
+			ArrayList<Integer> equal_to = new ArrayList<Integer>();
+			ArrayList<Integer> greater_than = new ArrayList<Integer>();
+			
+			Random rand = new Random();
+			int pivot_index = rand.nextInt(array.size());
+			int pivot_val = array.get(pivot_index);
+			
+			for (int i=0; i<array.size(); i++) {
+				int element = array.get(i);
+				
+				if (element < pivot_val) {
+					less_than.add(element);
+					
+					this.inversions += equal_to.size();
+					this.inversions += greater_than.size();
+				} else if (element == pivot_val) {
+					equal_to.add(element);
+					
+					this.inversions += greater_than.size();
+				} else {
+					greater_than.add(element);
+				}
+			}
+			
+			less_than = sort(less_than);
+			greater_than = sort(greater_than);
+			
+			return merge(less_than, equal_to, greater_than);
+		}
+	}
+	
+	public void sort(int[] unsorted_) {
+		setUnsorted(unsorted_);
+		
+		//convert unsorted into an ArrayList of type Integer
+		ArrayList<Integer> temp = new ArrayList<Integer>();
+		for (int i=0; i<this.unsorted.length; i++) {
+			temp.add(this.unsorted[i]);
+		}
+		
+		//sort temp(holds the values of unsorted)
+		temp = sort(temp);
+		
+		//transfer sorted values into sorted
+		this.sorted = new int[temp.size()];
+		for (int i=0; i<temp.size(); i++) {
+			this.sorted[i] = temp.get(i);
+		}
+	}
+	
+	private ArrayList<Integer> merge(ArrayList<Integer> less, ArrayList<Integer> equal, ArrayList<Integer> greater) {
+		ArrayList<Integer> merged = new ArrayList<Integer>();
+		
+		//concatenate less into merged
+		for (int i=0; i<less.size(); i++) {
+			merged.add(less.get(i));
+		}
+		
+		//concatenate equal into merged
+		for (int i=0; i<equal.size(); i++) {
+			merged.add(equal.get(i));
+		}
+		
+		//concatenate greater into merged
+		for (int i=0; i<greater.size(); i++) {
+			merged.add(greater.get(i));
+		}
+		
+		//return merged
+		return merged;
+	}
+	
+	public void display() {
+		displayUnsorted();
+		displaySorted();
+		displayInversions();
+	}
+	
+	public void displayUnsorted() {
+		System.out.print("Unsorted array: ");
+		for (int i=0; i<this.unsorted.length; i++) {
+			if (i==0) {
+				System.out.print(this.unsorted[i]);
+			} else {
+				System.out.print(", " + this.unsorted[i]);
+			}
+		}
+		System.out.println();
+	}
+	
+	public void displaySorted() {
+		System.out.print("Sorted array: ");
+		for (int i=0; i<this.sorted.length; i++) {
+			if (i==0) {
+				System.out.print(this.sorted[i]);
+			} else {
+				System.out.print(", " + this.sorted[i]);
+			}
+		}
+		System.out.println();
+	}
+	
+	public void displayInversions() {
+		System.out.println("Inversion: " + this.inversions);
+		System.out.println();
+	}
 }
 
 class BubbleSort {
