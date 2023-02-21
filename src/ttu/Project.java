@@ -11,12 +11,15 @@ import java.util.Scanner;
 
 public class Project {
 	public static void main(String[] args) {
-		int s1[] = new int[10000];
-		int s2[] = new int[10000];
-		int s3[] = new int[10000];
-		int s4[] = new int[10000];
-		int s5[] = new int[10000];
+		int size =10000;
+		int source1[] = new int[size];
+		int source2[] = new int[size];
+		int source3[] = new int[size];
+		int source4[] = new int[size];
+		int source5[] = new int[size];
 		try {
+			
+			// read the input data from the given text files
 			File s1File = new File("C:\\Users\\Vamsi\\Desktop\\Project1\\source1.txt");
 			Scanner s1Reader = new Scanner(s1File);
 			File s2File = new File("C:\\Users\\Vamsi\\Desktop\\Project1\\source2.txt");
@@ -29,12 +32,12 @@ public class Project {
 			Scanner s5Reader = new Scanner(s5File);
 
 			int i = 0;
-			while (i < 10000 && s1Reader.hasNextLine()) {
-				s1[i] = Integer.parseInt(s1Reader.nextLine());
-				s2[i] = Integer.parseInt(s2Reader.nextLine());
-				s3[i] = Integer.parseInt(s3Reader.nextLine());
-				s4[i] = Integer.parseInt(s4Reader.nextLine());
-				s5[i] = Integer.parseInt(s5Reader.nextLine());
+			while (i < size) {
+				source1[i] = Integer.parseInt(s1Reader.nextLine());
+				source2[i] = Integer.parseInt(s2Reader.nextLine());
+				source3[i] = Integer.parseInt(s3Reader.nextLine());
+				source4[i] = Integer.parseInt(s4Reader.nextLine());
+				source5[i] = Integer.parseInt(s5Reader.nextLine());
 				i++;
 			}
 			s1Reader.close();
@@ -42,23 +45,21 @@ public class Project {
 			s3Reader.close();
 			s4Reader.close();
 			s5Reader.close();
-		} catch (FileNotFoundException e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
-		} catch (NumberFormatException a) {
-			System.out.println("An error occurred.");
-			a.printStackTrace();
-		} catch (Exception e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
+		} catch (FileNotFoundException exception) {
+			System.out.println("Error Occurred: "+ exception.getMessage());
+		} catch (NumberFormatException exception) {
+			System.out.println("Error Occurred: "+ exception.getMessage());
+		} catch (Exception exception) {
+			System.out.println("Error Occurred: "+ exception.getMessage());
 		}
 
-		int combined[] = new int[10000];
+		// Combined Rank is the summation of rank of each web page from all the sources
+		int combinedRank[] = new int[10000];
 		for (int i = 0; i < 10000; i++) {
-			combined[i] = s1[i] + s2[i] + s3[i] + s4[i] + s5[i];
+			combinedRank[i] = source1[i] + source2[i] + source3[i] + source4[i] + source5[i];
 		}
-		int combinedIndex[] = new int[10000];
-		List<IndexValuePair> combinedIndexValue = sortArrayWhileMaintainingIndex(combined);
+		int combinedRankIndex[] = new int[10000];
+		List<IndexValuePair> combinedIndexValue = sortArrayWhileMemorizingIndex(combinedRank);
 		int s1rearranged[] = new int[10000];
 		int s2rearranged[] = new int[10000];
 		int s3rearranged[] = new int[10000];
@@ -67,17 +68,15 @@ public class Project {
 		int k=0;
 		for(IndexValuePair obj:combinedIndexValue) {
 			int index = obj.index;
-			s1rearranged[k] = s1[index];
-			s2rearranged[k] = s2[index];
-			s3rearranged[k] = s3[index];
-			s4rearranged[k] = s4[index];
-			s5rearranged[k] = s5[index];
+			s1rearranged[k] = source1[index];
+			s2rearranged[k] = source2[index];
+			s3rearranged[k] = source3[index];
+			s4rearranged[k] = source4[index];
+			s5rearranged[k] = source5[index];
 			k++;
 		}
 		
-		
-		
-		
+		System.out.println("--------------Merge Sort--------------------");
 		MergeSort M1 = new MergeSort();				//Creates MergeSort object
 		M1.sort(s1rearranged, 0, s1rearranged.length-1);	//Sorts array and counts inversions
 		System.out.println(M1.getInversions());			//Displays # of inversions
@@ -97,6 +96,8 @@ public class Project {
 		//Displays the rank of the source file based on its reliability
 		Rank.sort(M1.getInversions(), M2.getInversions(), M3.getInversions(), M4.getInversions(), M5.getInversions());
 		
+		
+		System.out.println("--------------Quick Sort--------------------");
 		QuickSort Q1 = new QuickSort();
 		Q1.sort(s1rearranged, 0, s1rearranged.length-1);
 		System.out.println(Q1.getInversions());
@@ -115,6 +116,7 @@ public class Project {
 		
 		Rank.sort(Q1.getInversions(), Q2.getInversions(), Q3.getInversions(), Q4.getInversions(), Q5.getInversions());
 		
+		System.out.println("--------------Bubble Sort--------------------");
 		BubbleSort B1 = new BubbleSort();
 		B1.sort(s1rearranged, s1rearranged.length);
 		System.out.println(B1.getInversions());
@@ -135,6 +137,7 @@ public class Project {
 		
 	}
 	
+	//to store index value pair for the combined rank
 	static class IndexValuePair {
         int index;
         int value;
@@ -145,7 +148,8 @@ public class Project {
         }
     }
 	
-	public static List<IndexValuePair> sortArrayWhileMaintainingIndex(int[] arr) {
+	// To memorize the indices after sorting the combined rank array
+	public static List<IndexValuePair> sortArrayWhileMemorizingIndex(int[] arr) {
         List<IndexValuePair> indexValuePairs = new ArrayList<>();
         for (int i = 0; i < arr.length; i++) {
             indexValuePairs.add(new IndexValuePair(i, arr[i]));
@@ -153,8 +157,8 @@ public class Project {
 
         Collections.sort(indexValuePairs, new Comparator<IndexValuePair>() {
             @Override
-            public int compare(IndexValuePair o1, IndexValuePair o2) {
-                return Integer.compare(o1.value, o2.value);
+            public int compare(IndexValuePair ivp1, IndexValuePair ivp2) {
+                return Integer.compare(ivp1.value, ivp2.value);
             }
         });
 
@@ -170,47 +174,40 @@ class MergeSort {
     public int getInversions() {
     	return inversions;
     }
-    public void sort(int[] arr, int l, int r) {
-        if (l < r) {
-            int m = (l + r) / 2;
-            sort(arr, l, m);
-            sort(arr, m + 1, r);
-            merge(arr, l, m, r);
+    public void sort(int[] arr, int left, int right) {
+        if (left < right) {
+            int m = (left + right) / 2;
+            sort(arr, left, m);
+            sort(arr, m + 1, right);
+            merge(arr, left, m, right);
         }
     }
     
-    public void merge(int[] arr, int l, int m, int r) {
-        int n1 = m - l + 1;
-        int n2 = r - m;
-        int[] L = new int[n1];
-        int[] R = new int[n2];
+    public void merge(int[] arr, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+        int[] leftArray = new int[n1];
+        int[] rightArray = new int[n2];
         for (int i = 0; i < n1; i++) {
-            L[i] = arr[l + i];
+            leftArray[i] = arr[left + i];
         }
         for (int j = 0; j < n2; j++) {
-            R[j] = arr[m + 1 + j];
+            rightArray[j] = arr[mid + 1 + j];
         }
-        int i = 0, j = 0, k = l;
+        int i = 0, j = 0, k = left;
         while (i < n1 && j < n2) {
-            if (L[i] <= R[j]) {
-                arr[k] = L[i];
-                i++;
+            if (leftArray[i] <= rightArray[j]) {
+                arr[k++] = leftArray[i++];
             } else {
-                arr[k] = R[j];
-                j++;
+                arr[k++] = rightArray[j++];
                 inversions += n1 - i;
             }
-            k++;
         }
         while (i < n1) {
-            arr[k] = L[i];
-            i++;
-            k++;
+            arr[k++] = leftArray[i++];
         }
         while (j < n2) {
-            arr[k] = R[j];
-            j++;
-            k++;
+            arr[k++] = rightArray[j++];
         }
     }
 
@@ -280,7 +277,7 @@ class BubbleSort {
 }
 
 
-static class Rank {
+class Rank {
 		
 	//This method adds all inverse counts to an array and rearranged them in ascending order
 	public static void sort(int inv1, int inv2, int inv3, int inv4, int inv5) {
